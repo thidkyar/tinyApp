@@ -12,7 +12,7 @@
         <tr>
           <th>URL</th>
           <th>Short URL</th>
-
+          <th</th>
         </tr>
       </thead>
       <tbody>
@@ -20,6 +20,11 @@
         <tr>
           <td><%= urls[shortUrl] %></td>
           <td><%= shortUrl %></td>
+          <td>
+            <form method ='POST' action='/urls/<%= shortUrl %>/delete'>
+              <input type='submit' value='Delete'/>
+            </form>
+          </td>
         </tr>
         <% } %>
         <tr>
