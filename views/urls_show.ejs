@@ -12,12 +12,18 @@
       <tr>
         <th>Full URL</th>
         <th>Short URL </th>
+        <th><th>
       </tr>
     </thead>
     <tbody>
       <tr>
         <td><%= urls[shortURL]%></td>
         <td><%= shortURL %></td>
+        <td>
+          <form method='POST' action = '/urls/<%= shortURL %>'>
+            <input type='text' name='longURL' value='<%= urls[shortURL] %>' />
+            <input type='submit' value='Update' />
+        </td>
       </tr>
     </tbody>
 </body>
