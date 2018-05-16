@@ -2,5 +2,16 @@
 <head>
   <body>
     <h3>TinyApp Header</h3>
+    <% if (userName === undefined) { %>
+    <form method='POST' action='/login'>
+      <input type='text' name='username' />
+      <input type='submit' value='Login!' />
+    </form>
+    <% } else {%>
+    <p><%=userName%></p>
+    <form method='POST' action='/logout'>
+      <input type='submit' value='Logout'/>
+    </form
+  <% } %>
   </body>
 </head>
