@@ -13,8 +13,21 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.set("view engine", "ejs");
 
 var urlDatabase = {
-  b2xVn2: "http://www.lighthouselabs.ca",
+  "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
+};
+
+var users = {
+  userRandomID: {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: "purple-monkey-dinosaur"
+  },
+  user2RandomID: {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: "dishwasher-funk"
+  }
 };
 
 app.get("/", (req, res) => {
@@ -23,7 +36,7 @@ app.get("/", (req, res) => {
 
 app.get("/urls", (req, res) => {
   let templateVars = {
-    userName: req.cookies["username"],
+    users: users[req.cookies["user_id"]],
     urls: urlDatabase
   };
   res.render("urls_index", templateVars);
@@ -33,14 +46,14 @@ app.get("/urls", (req, res) => {
 
 app.get("/urls/new", (req, res) => {
   let templateVars = {
-    userName: req.cookies["username"]
+    users: users[req.cookies["user_id"]]
   };
   res.render("urls_new", templateVars);
 });
 
 app.get("/urls/:id", (req, res) => {
   let templateVars = {
-    userName: req.cookies["username"],
+    users: users[req.cookies["user_id"]],
     shortURL: req.params.id,
     urls: urlDatabase
   };
@@ -77,7 +90,11 @@ app.get("/urls/:shortURL", (req, res) => {
   let urls = urlDatabase[shortURL];
 
   if (urls) {
-    res.render("urls_show", { shortURL: shortURL, urls: urls, userName: req.cookies["username"] });
+    res.render("urls_show", {
+      shortURL: shortURL,
+      urls: urls,
+      users: users[req.cookies["user_id"]]
+    });
   } else {
     res.sendStatus(404);
   }
@@ -106,14 +123,62 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   res.redirect("/urls");
 });
 
+app.get("/login", (req, res) => {
+  res.render("urls_login");
+});
+
 app.post("/login", (req, res) => {
-  var userName = req.body.username;
-  res.cookie("username", userName);
-  res.redirect("/urls");
+  const idFromCookie = req.cookies["user_id"];
+  const loginEmail = req.body.email;
+  const loginPass = req.body.password
+  var userName = users[idFromCookie];
+  // var err1 = res.send(403, "Sorry, email does not exist");
+  // var err2 = res.send(403, "Incorrect email or password");
+  if (!loginEmail || !loginPass) {
+    res.send(403, 'Missed an email or password field!')
+  }
+
+  for (let id in users) {
+    if (users[id].email === loginEmail) {
+        if (users[id].password === loginPass) {
+      res.cookie("user_id", id);
+      res.redirect("/urls");
+    } else {
+      res.send(403, 'Incorrect email or password!')
+    }
+  }
+}
 });
 
 app.post("/logout", (req, res) => {
-  res.clearCookie("username");
+  res.clearCookie("user_id");
+  res.redirect("/urls");
+});
+
+//GET - Register page
+app.get("/register", (req, res) => {
+  res.render("urls_register");
+});
+
+//POST - Register page
+app.post("/register", (req, res) => {
+  var randomId = generateRandomString();
+  var theEmail = req.body.email;
+  var pwd = req.body.password;
+  for (let id in users) {
+    if (users[id].email === theEmail) {
+      res.send(400, "Email in use");
+    }
+    if (!theEmail || !pwd) {
+      res.send(400, "Please input all fields");
+    }
+    users[randomId] = {
+      id: randomId,
+      email: req.body.email,
+      password: req.body.password
+    };
+    res.cookie("user_id", randomId);
+  }
   res.redirect("/urls");
 });
 
