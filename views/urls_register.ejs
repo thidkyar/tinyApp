@@ -2,13 +2,15 @@
 <html lang="en">
   <head></head>
   <body style="font-size:20px; padding:50px;">
-    <h1 align='center'> REGISTER </h1>
-    <form action="/register" method="POST" style="margin:150px;">
+    <h1 align='left'> REGISTER </h1>
+    <form action="/register" method="POST">
       <label> Email: </label>
       <input id='email' type="email" name="email" />
       <label> Password: </label>
       <input id='password' type="password" name="password" />
       <input type='submit' value='Register' />
+      <form action='/login'>
     </form>
+    <a style="font-size:14px" href='/login'> Back to Login </a>
   </body>
 </html>
