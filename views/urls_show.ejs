@@ -17,13 +17,14 @@
     </thead>
     <tbody>
       <tr>
-        <td><%= urls[shortURL]%></td>
+        <td><%= urls[shortURL].url%></td>
         <td><%= shortURL %></td>
         <td>
           <form method='POST' action = '/urls/<%= shortURL %>'>
-            <input type='text' name='longURL' value='<%= urls[shortURL] %>' />
+            <input type='text' name='longURL' value='<%= urls[shortURL].url %>' />
             <input type='submit' value='Update' />
         </td>
+        <td>
       </tr>
     </tbody>
 </body>

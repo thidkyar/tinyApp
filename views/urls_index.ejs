@@ -18,7 +18,7 @@
       <tbody>
         <% for (shortURL in urls) { %>
         <tr>
-          <td><%= urls[shortURL] %></td>
+          <td><%= urls[shortURL].url %></td>
           <td><%= shortURL %></td>
           <td>
             <a href='/urls/<%= shortURL %>'> Edit </a>
