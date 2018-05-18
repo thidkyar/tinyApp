@@ -41,6 +41,7 @@ function urlObject(value) {
   for (var id in urlDatabase) {
     if (urlDatabase[id].userID === value) {
       newUrlDatabase[id] = urlDatabase[id];
+
     }
   }
   return newUrlDatabase;
@@ -53,6 +54,7 @@ app.get("/", (req, res) => {
 app.get("/urls", (req, res) => {
   if (!users[req.cookies.user_id]) {
     res.redirect("/login");
+    return;
   }
   let uniqUrls = urlObject(req.cookies.user_id);
   let templateVars = {
@@ -175,6 +177,7 @@ app.post("/login", (req, res) => {
   // var err2 = res.send(403, "Incorrect email or password");
   if (!loginEmail || !loginPass) {
     res.send(403, "Missed an email or password field!");
+    return;
   }
 
   for (let id in users) {
@@ -207,9 +210,11 @@ app.post("/register", (req, res) => {
   for (let id in users) {
     if (users[id].email === theEmail) {
       res.send(400, "Email in use");
+      return;
     }
     if (!theEmail || !pwd) {
       res.send(400, "Please input all fields");
+      return;
     }
     users[randomId] = {
       id: randomId,
