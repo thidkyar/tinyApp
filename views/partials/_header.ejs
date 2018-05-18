@@ -1,7 +1,7 @@
 <!-- views/partials/header.ejs -->
 <head>
   <body>
-    <h3>TinyApp Header</h3>
+    <h3><a href='/urls'>TinyApp</a></h3>
     <% if (!users) { %>
     <form action="/login">
     <button type="submit">Login</button>
@@ -10,9 +10,9 @@
     <button type="submit">Register</button>
     </form>
     <% } if (users) { %>
+      <p><b>USER:</b> <%= users.email %></p>
     <form method ='POST' action='/logout'>
       <button type='submit'> Logout </button>
-        <p><%= users.email %></p>
     <% } %>
   </form>
 
