@@ -4,14 +4,9 @@ var PORT = process.env.PORT || 8080; // default port 8080
 var express = require("express");
 const bcrypt = require('bcrypt');
 var cookieSession = require('cookie-session')
-// var cookieParser = require('cookie-parser')
-// app.use(cookieParser())
 app.use(cookieSession({
   name: 'session',
   keys: ['Dont worry how this is encrypted']
-
-  // Cookie Options
-  // maxAge: 24 * 60 * 60 * 1000 // 24 hours
 }))
 
 const bodyParser = require("body-parser");
@@ -77,20 +72,13 @@ app.get("/urls", (req, res) => {
   } else {
     res.redirect("/urls/new");
   }
-  // });
-  //   res.render("urls_index", templateVars);
 });
-
-// app.get('/urls/:id')
 
 app.get("/urls/new", (req, res) => {
   let templateVars = {
     users: users[req.session.user_id]
   };
-  // console.log('users_id', req.cookies['user_id']);
   for (let id in users) {
-    // console.log('id:',id)
-    // console.log('user[id]: ', users[id])
     if (users[id].id === req.session.user_id) {
       res.render("urls_new", templateVars);
       return;
