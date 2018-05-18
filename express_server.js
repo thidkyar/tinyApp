@@ -2,9 +2,17 @@ var express = require("express");
 var app = express();
 var PORT = process.env.PORT || 8080; // default port 8080
 var express = require("express");
-var cookieParser = require("cookie-parser");
+const bcrypt = require('bcrypt');
+var cookieSession = require('cookie-session')
+// var cookieParser = require('cookie-parser')
+// app.use(cookieParser())
+app.use(cookieSession({
+  name: 'session',
+  keys: ['Dont worry how this is encrypted']
 
-app.use(cookieParser());
+  // Cookie Options
+  // maxAge: 24 * 60 * 60 * 1000 // 24 hours
+}))
 
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -52,13 +60,13 @@ app.get("/", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  if (!users[req.cookies.user_id]) {
+  if (!users[req.session.user_id]) {
     res.redirect("/login");
     return;
   }
-  let uniqUrls = urlObject(req.cookies.user_id);
+  let uniqUrls = urlObject(req.session.user_id);
   let templateVars = {
-    users: users[req.cookies["user_id"]],
+    users: users[req.session.user_id],
     urls: uniqUrls
   };
   if (Object.keys(uniqUrls).length > 0) {
@@ -74,13 +82,13 @@ app.get("/urls", (req, res) => {
 
 app.get("/urls/new", (req, res) => {
   let templateVars = {
-    users: users[req.cookies["user_id"]]
+    users: users[req.session.user_id]
   };
   // console.log('users_id', req.cookies['user_id']);
   for (let id in users) {
     // console.log('id:',id)
     // console.log('user[id]: ', users[id])
-    if (users[id].id === req.cookies["user_id"]) {
+    if (users[id].id === req.session.user_id) {
       res.render("urls_new", templateVars);
       return;
     }
@@ -90,7 +98,7 @@ app.get("/urls/new", (req, res) => {
 
 app.get("/urls/:id", (req, res) => {
   let templateVars = {
-    users: users[req.cookies["user_id"]],
+    users: users[req.session.user_id],
     shortURL: req.params.id,
     urls: urlDatabase
   };
@@ -110,7 +118,7 @@ app.post("/urls", (req, res) => {
     var shortURL = generateRandomString();
     urlDatabase[shortURL] = {
       url: longURL,
-      userID: req.cookies["user_id"]
+      userID: req.session.user_id
     };
     res.redirect(`/urls/${shortURL}`);
   }
@@ -134,7 +142,7 @@ app.get("/urls/:shortURL", (req, res) => {
     res.render("urls_show", {
       shortURL: shortURL,
       urls: urls,
-      users: users[req.cookies["user_id"]]
+      users: users[req.session.user_id]
     });
   } else {
     res.sendStatus(404);
@@ -170,8 +178,8 @@ app.get("/login", (req, res) => {
 
 app.post("/login", (req, res) => {
   // const idFromCookie = req.cookies["user_id"];
-  const loginEmail = req.body.email;
-  const loginPass = req.body.password;
+  var loginEmail = req.body.email;
+  var loginPass = req.body.password;
   // var userName = users[idFromCookie];
   // var err1 = res.send(403, "Sorry, email does not exist");
   // var err2 = res.send(403, "Incorrect email or password");
@@ -182,8 +190,8 @@ app.post("/login", (req, res) => {
 
   for (let id in users) {
     if (users[id].email === loginEmail) {
-      if (users[id].password === loginPass) {
-        res.cookie("user_id", id);
+      if (bcrypt.compareSync(loginPass, users[id].password)) {
+        req.session.user_id = id;
         res.redirect("/urls");
         return;
       }
@@ -193,7 +201,7 @@ app.post("/login", (req, res) => {
 });
 
 app.post("/logout", (req, res) => {
-  res.clearCookie("user_id");
+  req.session = null
   res.redirect("/urls");
 });
 
@@ -207,6 +215,8 @@ app.post("/register", (req, res) => {
   var randomId = generateRandomString();
   var theEmail = req.body.email;
   var pwd = req.body.password;
+  const hashedPassword = bcrypt.hashSync(pwd, 10);
+
   for (let id in users) {
     if (users[id].email === theEmail) {
       res.send(400, "Email in use");
@@ -219,12 +229,14 @@ app.post("/register", (req, res) => {
     users[randomId] = {
       id: randomId,
       email: req.body.email,
-      password: req.body.password
+      password: hashedPassword
     };
-    res.cookie("user_id", randomId);
+    req.session.user_id = randomId;
   }
+  console.log(users)
   res.redirect("/urls");
 });
+
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
