@@ -56,7 +56,10 @@ function urlObject(value) {
 }
 
 app.get("/", (req, res) => {
-  res.end("Hello!");
+  if (!users) {
+    res.redirect('/login');
+  }
+  res.redirect('/urls');
 });
 
 app.get("/urls", (req, res) => {
@@ -172,25 +175,23 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   res.redirect("/urls");
 });
 
+//GET - Login
 app.get("/login", (req, res) => {
   res.render("urls_login");
 });
 
+//POST - Login
 app.post("/login", (req, res) => {
-  // const idFromCookie = req.cookies["user_id"];
   var loginEmail = req.body.email;
   var loginPass = req.body.password;
-  // var userName = users[idFromCookie];
-  // var err1 = res.send(403, "Sorry, email does not exist");
-  // var err2 = res.send(403, "Incorrect email or password");
   if (!loginEmail || !loginPass) {
     res.send(403, "Missed an email or password field!");
     return;
   }
 
   for (let id in users) {
-    if (users[id].email === loginEmail) {
-      if (bcrypt.compareSync(loginPass, users[id].password)) {
+    if (users[id].email === loginEmail) { //compare email in Database with input email
+      if (bcrypt.compareSync(loginPass, users[id].password)) { //compare database hashed pwd with input password
         req.session.user_id = id;
         res.redirect("/urls");
         return;
