@@ -153,11 +153,11 @@ app.post("/urls/:id", (req, res) => {
 
 //delete Post
 app.post("/urls/:shortURL/delete", (req, res) => {
-  let shortURL = req.params.id;
+  let shortURL = req.params.shortURL;
   let urls = urlDatabase[shortURL].url;
 
   if (urls) {
-    delete urlDatabase[shortURL].url;
+    delete urlDatabase[shortURL];
   }
   res.redirect("/urls");
 });
