@@ -2,12 +2,14 @@ var express = require("express");
 var app = express();
 var PORT = process.env.PORT || 8080; // default port 8080
 var express = require("express");
-const bcrypt = require('bcrypt');
-var cookieSession = require('cookie-session')
-app.use(cookieSession({
-  name: 'session',
-  keys: ['Dont worry how this is encrypted']
-}))
+const bcrypt = require("bcrypt");
+var cookieSession = require("cookie-session");
+app.use(
+  cookieSession({
+    name: "session",
+    keys: ["Dont worry how this is encrypted"]
+  })
+);
 
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -44,7 +46,6 @@ function urlObject(value) {
   for (var id in urlDatabase) {
     if (urlDatabase[id].userID === value) {
       newUrlDatabase[id] = urlDatabase[id];
-
     }
   }
   return newUrlDatabase;
@@ -52,10 +53,10 @@ function urlObject(value) {
 
 app.get("/", (req, res) => {
   if (!users) {
-    res.redirect('/login');
+    res.redirect("/login");
     return;
   }
-  res.redirect('/urls');
+  res.redirect("/urls");
 });
 
 app.get("/urls", (req, res) => {
@@ -96,7 +97,7 @@ app.get("/urls/:id", (req, res) => {
     urls: urlDatabase
   };
   if (!users[req.session.user_id] || !urlDatabase[req.params.id]) {
-    res.send('Url does not exist!');
+    res.send("Url does not exist!");
     return;
   }
   res.render("urls_show", templateVars);
@@ -123,11 +124,11 @@ app.post("/urls", (req, res) => {
 });
 
 app.get("/u/:shortURL", (req, res) => {
-
   let shortURL = req.params.shortURL;
   let longURL = urlDatabase[shortURL].url;
   if (longURL === undefined) {
     res.sendStatus(404);
+    return;
   }
   res.redirect(longURL);
 });
@@ -145,6 +146,7 @@ app.get("/urls/:shortURL", (req, res) => {
     });
   } else {
     res.sendStatus(404);
+    return;
   }
 });
 
@@ -175,9 +177,9 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 app.get("/login", (req, res) => {
   res.render("urls_login");
   if (!urlDatabase[req.params.id]) {
-  res.redirect('/urls')
-  return;
-}
+    res.redirect("/urls");
+    return;
+  }
 });
 
 //POST - Login
@@ -190,19 +192,21 @@ app.post("/login", (req, res) => {
   }
 
   for (let id in users) {
-    if (users[id].email === loginEmail) { //compare email in Database with input email
-      if (bcrypt.compareSync(loginPass, users[id].password)) { //compare database hashed pwd with input password
+    if (users[id].email === loginEmail) {
+      //compare email in Database with input email
+      if (bcrypt.compareSync(loginPass, users[id].password)) {
+        //compare database hashed pwd with input password
         req.session.user_id = id;
         res.redirect("/urls");
-        return;
       }
     }
   }
   res.send(403, "Incorrect email or password!");
+  return;
 });
 
 app.post("/logout", (req, res) => {
-  req.session = null
+  req.session = null;
   res.redirect("/urls");
 });
 
@@ -236,7 +240,6 @@ app.post("/register", (req, res) => {
   }
   res.redirect("/urls");
 });
-
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
