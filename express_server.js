@@ -53,6 +53,7 @@ function urlObject(value) {
 app.get("/", (req, res) => {
   if (!users) {
     res.redirect('/login');
+    return;
   }
   res.redirect('/urls');
 });
@@ -69,6 +70,7 @@ app.get("/urls", (req, res) => {
   };
   if (Object.keys(uniqUrls).length > 0) {
     res.render("urls_index", templateVars);
+    return;
   } else {
     res.redirect("/urls/new");
   }
@@ -93,6 +95,10 @@ app.get("/urls/:id", (req, res) => {
     shortURL: req.params.id,
     urls: urlDatabase
   };
+  if (!users[req.session.user_id] || !urlDatabase[req.params.id]) {
+    res.send('Url does not exist!');
+    return;
+  }
   res.render("urls_show", templateVars);
 });
 
@@ -105,6 +111,7 @@ app.post("/urls", (req, res) => {
   var longURL = req.body.longURL;
   if (!req.body.longURL) {
     res.sendStatus(404);
+    return;
   } else {
     var shortURL = generateRandomString();
     urlDatabase[shortURL] = {
@@ -116,6 +123,7 @@ app.post("/urls", (req, res) => {
 });
 
 app.get("/u/:shortURL", (req, res) => {
+
   let shortURL = req.params.shortURL;
   let longURL = urlDatabase[shortURL].url;
   if (longURL === undefined) {
@@ -147,6 +155,7 @@ app.post("/urls/:id", (req, res) => {
   if (urls) {
     urlDatabase[shortURL].url = req.body.longURL;
     res.redirect(`/urls/`);
+    return;
   } else {
     res.redirect("/urls");
   }
@@ -156,7 +165,6 @@ app.post("/urls/:id", (req, res) => {
 app.post("/urls/:shortURL/delete", (req, res) => {
   let shortURL = req.params.shortURL;
   let urls = urlDatabase[shortURL].url;
-
   if (urls) {
     delete urlDatabase[shortURL];
   }
@@ -166,6 +174,10 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 //GET - Login
 app.get("/login", (req, res) => {
   res.render("urls_login");
+  if (!urlDatabase[req.params.id]) {
+  res.redirect('/urls')
+  return;
+}
 });
 
 //POST - Login
@@ -222,7 +234,6 @@ app.post("/register", (req, res) => {
     };
     req.session.user_id = randomId;
   }
-  console.log(users)
   res.redirect("/urls");
 });
 
