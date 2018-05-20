@@ -1,9 +1,8 @@
-var express = require("express");
-var app = express();
-var PORT = process.env.PORT || 8080; // default port 8080
-var express = require("express");
+const express = require("express");
+const app = express();
+const PORT = process.env.PORT || 8080; // default port 8080
 const bcrypt = require("bcrypt");
-var cookieSession = require("cookie-session");
+const cookieSession = require("cookie-session");
 app.use(
   cookieSession({
     name: "session",
@@ -17,7 +16,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // set the view engine to ejs
 app.set("view engine", "ejs");
 
-var urlDatabase = {
+const urlDatabase = {
   b2xVn2: {
     url: "http://www.lighthouselabs.ca",
     userID: "userRandomID"
@@ -28,7 +27,7 @@ var urlDatabase = {
   }
 };
 
-var users = {
+const users = {
   userRandomID: {
     id: "userRandomID",
     email: "user@example.com",
@@ -43,7 +42,7 @@ var users = {
 
 function urlObject(value) {
   newUrlDatabase = {};
-  for (var id in urlDatabase) {
+  for (let id in urlDatabase) {
     if (urlDatabase[id].userID === value) {
       newUrlDatabase[id] = urlDatabase[id];
     }
@@ -109,12 +108,12 @@ app.get("/urls.json", (req, res) => {
 
 //Posting new URL
 app.post("/urls", (req, res) => {
-  var longURL = req.body.longURL;
+  let longURL = req.body.longURL;
   if (!req.body.longURL) {
     res.sendStatus(404);
     return;
   } else {
-    var shortURL = generateRandomString();
+    let shortURL = generateRandomString();
     urlDatabase[shortURL] = {
       url: longURL,
       userID: req.session.user_id
@@ -176,6 +175,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 //GET - Login
 app.get("/login", (req, res) => {
   res.render("urls_login");
+  return;
   if (!urlDatabase[req.params.id]) {
     res.redirect("/urls");
     return;
@@ -184,8 +184,8 @@ app.get("/login", (req, res) => {
 
 //POST - Login
 app.post("/login", (req, res) => {
-  var loginEmail = req.body.email;
-  var loginPass = req.body.password;
+  let loginEmail = req.body.email;
+  let loginPass = req.body.password;
   if (!loginEmail || !loginPass) {
     res.send(403, "Missed an email or password field!");
     return;
@@ -198,6 +198,7 @@ app.post("/login", (req, res) => {
         //compare database hashed pwd with input password
         req.session.user_id = id;
         res.redirect("/urls");
+        return;
       }
     }
   }
@@ -217,9 +218,9 @@ app.get("/register", (req, res) => {
 
 //POST - Register page
 app.post("/register", (req, res) => {
-  var randomId = generateRandomString();
-  var theEmail = req.body.email;
-  var pwd = req.body.password;
+  let randomId = generateRandomString();
+  let theEmail = req.body.email;
+  let pwd = req.body.password;
   const hashedPassword = bcrypt.hashSync(pwd, 10);
 
   for (let id in users) {
